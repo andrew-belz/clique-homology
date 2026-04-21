@@ -2,7 +2,7 @@
 #include <cassert>
 #include <vector>
 #include <utility>
-#include "../src/internal/matrix.h"
+#include "../src/internal/matrix.hpp"
 
 void test_bit_boundaries() {
     std::cout << "Running Test 1: 64-bit Chunk Boundaries..." << std::endl;
