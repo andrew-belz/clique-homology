@@ -6,10 +6,16 @@ import itertools
 
 # ----------------------------------------------------------------------------------------------------------------
 def get_max_clique_size(G:nk.Graph):
-    """
-    Get largest possible clique in a graph.
+    """Return the size of the largest clique of a graph G.
+
+    Args:
+        G (nk.Graph): a graph
+
+    Returns:
+        int: size of largest clique in the graph
     """
 
+    # Get maximal cliques, store them in cliques
     finder = nk.clique.MaximalCliques(G, maximumOnly=True)
     finder.run()
     cliques = finder.getCliques()
@@ -21,11 +27,14 @@ def get_max_clique_size(G:nk.Graph):
 
 
 def get_cliques(G:nk.Graph):
-    """
-    Return a generator for cliques of a graph G.
-    
-    :param G: A colored graph.
-    :type G: nk.Graph
+    """Return a generator for cliques of a graph G.
+
+    Args:
+        G (nk.Graph): A colored graph.
+
+    Yields:
+        tuple: A tuple of vertices representing a single clique, ordered by
+            length.
     """
 
     # this part seems like it isn't the most efficient 
@@ -53,7 +62,7 @@ def get_cliques(G:nk.Graph):
 
 # ----------------------------------------------------------------------------------------------------------------
 
-def get_colored_subgraphs(G:nk.Graph, node_colors:list[str]):
+
     """
     Return a generator for colored subgraphs of a graph G.
     
@@ -62,7 +71,22 @@ def get_colored_subgraphs(G:nk.Graph, node_colors:list[str]):
     :param node_attr: A dictionary mapping node IDs to their attribute (color).
     :type node_attr: list
     """
-    # Group nodes by their attribute value - color:[nodes] key-value pairs
+
+def get_colored_subgraphs(G:nk.Graph, node_colors:list[str]):
+    """Return a generator for colored subgraphs of a graph G. 
+
+    Args:
+        G (nk.Graph): A colored graph.
+        node_colors (list[str]): A list mapping node IDs (list index)
+            to their attribute (color).
+
+    Yields:
+        nk.Graph: a subgraph of G containing all the nodes which have a specific
+            color and the edges between those nodes.
+    """
+
+    # Group nodes by their attribute value, forming color:[nodes] key-value
+    #   pairs inside node_subsets
     node_subsets: dict[str, list[int]] = {}
     for node, color in enumerate(node_colors):
         if color not in node_subsets:
@@ -70,36 +94,44 @@ def get_colored_subgraphs(G:nk.Graph, node_colors:list[str]):
         else:
             node_subsets[color].append(node)
         
+    # turn a list of nodes for a color into an nk.Graph and yield it
     for color in node_subsets.keys():
         yield nk.graphtools.subgraphFromNodes(G, node_subsets[color])
 
 # ----------------------------------------------------------------------------------------------------------------
 
 def boundary_maps(cliques:list) -> list:
+    """Construct the boundary maps D_k given a complete list of cliques
+        (simplicies).
+
+    Args:
+        cliques (list): A complete list of cliques for a graph. Cliques should
+            be lists of vertices.
+
+    Returns:
+        list: a list of numpy arrays. These are the boundary maps D_k for each
+            k.
     """
-    Construct the boundary maps D_k given a complete list of cliques (simplicies).
-    
-    :param cliques: A complete list of cliques for a graph. Cliques should be lists of vertices.
-    :type cliques: list
-    :return: a tuple of numpy arrays. These are the boundary maps D_k for each k.
-    :rtype: tuple
-    """
+
     def clique_order(cliques:list) -> list:
-        """
-        Define an ordering for each clique with respect to the other cliques of their given size.
-        This will be used to construct the boundary maps.
-        
-        :param cliques: Description
-        :type cliques: list
-        :return: A tuple of dictionaries, one for each size of clique: tuple(dict(tuple:int), ...)
-        :rtype: tuple
+        """Define an ordering for each clique with respect to the other cliques
+            of their given size. This will be used to construct the boundary
+            maps.
+
+        Args:
+            cliques (list): a list of cliques (tuples of vertices)
+
+        Returns:
+            list: A list of dictionaries, one for each size of 
+                clique: list(dict(tuple:int))
         """
 
         if not cliques:
             return []
 
+        # Find the size of the largest clique, initialize the ordering
         max_clique_size = len(cliques[-1])
-        result = [{} for _ in range(max_clique_size)]
+        ordering = [{} for _ in range(max_clique_size)]
 
         # track the current dictionary in result
         i = 0
@@ -114,61 +146,82 @@ def boundary_maps(cliques:list) -> list:
                 j = 0
             
             # assign the index j to the clique in the i-th dictionary in result
-            result[i][clique] = j
+            #   and increment j, resulting an ordered indexing of the cliques
+            #   of a given size. 
+            ordering[i][clique] = j
             j += 1
 
-        return result
-
+        return ordering
+    
     def build_map(position_dict1, position_dict2) -> np.ndarray:
-        """
-        Construct a boundary map from position_dict1 to position_dict2.
-        
-        :param position_dict1: Dictionary of positions for (k-1)-cliques.
-        :type position_dict1: dict
-        :param position_dict2: Dictionary of positions for (k)-cliques.
-        :type position_dict2: dict
-        :return: Description
-        :rtype: Any
+        """Construct a boundary map from position_dict1 to position_dict2.
+
+        Args:
+            position_dict1 (dict): Dictionary of positions for (k-1)-cliques:
+                dict(tuple:int)
+            position_dict2 (dict): Dictionary of positions for (k)-cliques.
+                dict(tuple:int)
+
+        Raises:
+            ValueError: raised if a specific face isn't found when we look
+                for it. This shouldn't happen, because if it did, it would
+                mean that the tuple of vertices we attempted to find a 
+                face of wasn't actually a clique.
+
+        Returns:
+            np.ndarray: a 2d numpy array representing the boundary map for 
+                k-1 cliques to k cliques.
         """
 
         # We are mapping from the (k-1)-cliques (nrow) to the k-cliques (ncol) 
         M = np.zeros((len(position_dict1), len(position_dict2)), dtype=int)
+        # get each simplex (clique) as k2, with its corresponding col index v2
         for k2, v2 in position_dict2.items():
             # Iterate over all faces of the simplex k2
             for i in range(len(k2)):
                 # Create face by removing the i-th vertex w/ tuple slicing
                 face = k2[:i] + k2[i+1:]
+                # get index of that face in the position dict 1 and set its
+                #   corresponding position in the boundary map to 1 to 
+                #   indicate its presence
                 if face in position_dict1:
                     M[position_dict1[face], v2] = 1
                 else:
-                    # hopefully this should never happen, with the way that we've written things
-                    raise ValueError(f"Face {face} not found in position_dict1.")
+                    # hopefully this should never happen, with the way that
+                    #   we've written things
+                    raise ValueError(f"Face {face} not found in \
+                                     position_dict1.")
 
         return M
 
+    # get the list of dicitonaries representing the clique ordering, then return
+    #   a list of 2d numpy arrays representing the boundary maps
     positions = clique_order(cliques)
-    return [build_map(positions[k-1], positions[k]) for k in range(1, len(positions))]
+    return [build_map(positions[k-1], positions[k])
+                        for k in range(1, len(positions))]
 
 # ----------------------------------------------------------------------------------------------------------------
 
 def ranks_and_nullities(M:np.array) -> tuple:
-    """
-    Return the rank and nullity of a matrix over Z_2.
+    """Return the rank and nullity of a matrix over Z_2 (contains only values of
+        0 or 1).
 
-    :param: M: a matrix M({0, 1}).
-    :type M: np.array
-    :return: a tuple of rank and nullity.
-    :rtype: tuple
-    """
+    Args:
+        M (np.array): a matrix M({0, 1}).
 
+    Returns:
+        tuple: a tuple containing the rank and nullity of M.
+    """
+    
     def rank_Z2(M:np.array) -> int:
-        """
-        Return the rank of a matrix M({0, 1}).
+        """Return the rank of a matrix M({0, 1}) (a matrix containing only 
+            values of 0 or 1).
 
-        :param M: a matrix M({0, 1}).
-        :type M: np.array
-        :return: the rank of M.
-        :rtype: int
+        Args:
+            M (np.array): a matrix M({0, 1}).
+
+        Returns:
+            int: the rank of M.
         """
         M2 = M.copy()
         nrows, ncols = M2.shape
@@ -213,6 +266,24 @@ def _validate_colors(
     colors: list[str],
     allowed_colors: list[str] | None = None,
 ) -> None:
+    """Ensure a coloring is valid for a graph G, given a list of allowed colors.
+
+    Args:
+        G (nk.Graph): a graph
+        colors (list[str]): a list mapping each node (index) in G to a color.
+        allowed_colors (list[str] | None, optional): a list of allowed colors. 
+            Defaults to None.
+
+    Raises:
+        ValueError: length of coloring list must match num nodes in G.
+        TypeError: colors values must be strings.
+        TypeError: allowed color values must be strings.
+        ValueError: if an allowed colors list is passed in, it must not be
+            empty.
+        ValueError: there must not be any color values in the coloring that 
+            aren't in the list of allowed colors.
+    """
+
     if len(colors) != G.numberOfNodes():
         raise ValueError(
             f"Coloring length ({len(colors)}) must match number of graph nodes ({G.numberOfNodes()})."
