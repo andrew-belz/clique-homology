@@ -1,6 +1,6 @@
 from clique_homology.stats_engine.stats_engine import stats_engine
-from docs.data.c_elegans_colors import c_elegans_colors
-from docs.data.c_elegans_edges import c_elegans_edges
+from temp.docs.data.c_elegans_colors import c_elegans_colors
+from temp.docs.data.c_elegans_edges import c_elegans_edges
 from pandas import DataFrame
 
 import networkit as nk
