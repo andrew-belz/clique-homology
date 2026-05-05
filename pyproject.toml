@@ -6,20 +6,21 @@ readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
     "numpy",
-    "networkx",
-    "matplotlib",
     "networkit"
 ]
 
 [project.scripts]
-data_model = "clique_homology.data_model.data_model.py:data_model_cli"
+data_model = "clique_homology.data_model.data_model:data_model_cli"
 
 [project.optional-dependencies]
 dev = [
     "pytest",
     "pytest-cov",
-    "ruff",
-    "scikit-learn",
+    "ruff"
+]
+analysis = [
+    "jupyter",
+    "networkx",
     "pandas",
-    "seaborn"
+    "matplotlib"
 ]
