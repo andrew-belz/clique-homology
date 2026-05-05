@@ -5,6 +5,20 @@
 
 using std::vector, std::map, std::pair;
 
+
+vector<vector<unsigned int>> get_faces(const vector<unsigned int>& clique) {
+    // get a vector of the faces (n-1)-dimensional cliques for a given clique
+    vector<vector<unsigned int>> faces(clique.size());
+    // loop through the clique and leave one vertex out: populate the faces
+    for (int i = 0; i < clique.size(); i++) {
+        for (int j = 0; j < faces.size(); j++) {
+            if (i != j) {faces[j].push_back(clique[i]);}
+        }
+    }
+
+    return faces;
+}
+
 // size_map is vector of 
 //  vector of same size cliques
 //      a clique is a vector of integers
@@ -50,17 +64,4 @@ vector<SparseBinaryMatrix> construct_boundary_maps(const vector<vector<vector<un
 
     // vector of binary matrices
     return boundary_maps;
-}
-
-vector<vector<unsigned int>> get_faces(const vector<unsigned int>& clique) {
-    // get a vector of the faces (n-1)-dimensional cliques for a given clique
-    vector<vector<unsigned int>> faces(clique.size());
-    // loop through the clique and leave one vertex out: populate the faces
-    for (int i = 0; i < clique.size(); i++) {
-        for (int j = 0; j < faces.size(); j++) {
-            if (i != j) {faces[j].push_back(clique[i]);}
-        }
-    }
-
-    return faces;
 }

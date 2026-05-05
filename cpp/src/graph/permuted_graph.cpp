@@ -29,19 +29,19 @@ vector <vector <int>> generate_random_colorings(const std::vector<int>& original
 
 
 
-vector <vector <int>> generate_permuted_graph(const vector<vector<int>>& graph, const vector<int>& original_coloring, int N) {
+// unordered_set <vector <int>> generate_permuted_graph(const vector<vector<int>>& graph, const vector<int>& original_coloring, int N) {
     
-    unordered_set <vector <int>> null_dist;
-    null_dist.reserve(N);
+//     unordered_set <vector <int>> null_dist;
+//     null_dist.reserve(N);
 
-    // Get random colorings matrix
-    vector <vector <int>> random_colorings = generate_random_colorings(original_coloring, N);
+//     // Get random colorings matrix
+//     vector <vector <int>> random_colorings = generate_random_colorings(original_coloring, N);
 
-    for (int i = 0; i < N; i++) {
-        // Generate permuted graph and add it to the null distribution. Using
-        //    emplace for performance.
-        null_dist.emplace(generate_betti_vector(graph, random_colorings[i]));
-    }
+//     for (int i = 0; i < N; i++) {
+//         // Generate permuted graph and add it to the null distribution. Using
+//         //    emplace for performance.
+//         null_dist.emplace(generate_betti_vector(graph, random_colorings[i]));
+//     }
 
-    return null_dist;    
-}
+//     return null_dist;    
+// }
