@@ -21,8 +21,7 @@ def random_coloring(
 
     Raises:
         TypeError: raised if some element of the list of colors isn't a string.
-        ValueError: raised if 
-
+        
     Returns:
         list[Color]: A random coloring
     """
