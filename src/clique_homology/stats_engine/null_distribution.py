@@ -17,14 +17,16 @@ def null_distribution(
     Args:
         graph (Graph): A graph.
         coloring (list[str]): A coloring of the graph.
-        iterations (int, optional): Desired size of . Defaults to 100.
-        allowed_colors (list[str] | None, optional): _description_. Defaults to None.
+        iterations (int, optional): Desired size of null distribution. Defaults
+            to 100.
+        allowed_colors (list[str] | None, optional): A list of colors from which
+            to validate the list of colors. Defaults to None.
 
     Raises:
-        ValueError: _description_
+        ValueError: rased if iterations is a negative number.
 
     Returns:
-        list[np.ndarray]: _description_
+        list[np.ndarray]: a list of betti vectors to act as a null distribution.
     """
     if iterations < 0:
         raise ValueError("iterations must be non-negative.")
@@ -36,6 +38,7 @@ def null_distribution(
     #   new coloring and add it to the distribution
     for _ in range(iterations):
         new_coloring = random_coloring(coloring, proportional=True)
-        distribution.append(betti_numbers(graph, new_coloring, allowed_colors=allowed_colors))
+        distribution.append(betti_numbers(graph, new_coloring,
+                                          allowed_colors=allowed_colors))
     
     return distribution
