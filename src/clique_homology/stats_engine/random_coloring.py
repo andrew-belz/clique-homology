@@ -4,38 +4,43 @@ from typing import TypeAlias
 Color: TypeAlias = str
 DEFAULT_COLOR_PALETTE: list[Color] = ["RED", "BLUE", "GREEN", "YELLOW"]
 
-def _validate_palette(allowed_colors: list[Color]) -> None:
-    if not all(isinstance(color, str) for color in allowed_colors):
-        raise TypeError("All allowed color values must be strings.")
-
 
 def random_coloring(
     colors: list[Color],
-    proportional: bool = False,
-    allowed_colors: list[Color] | None = None,
+    proportional: bool = False
 ) -> list[Color]:
-    
+    """Generates a random coloring based on an existing coloring.
+
+    Args:
+        colors (list[Color]): A coloring to serve as the basis for the new
+            random coloring.
+        proportional (bool, optional): True means the colors for the random
+            coloring will be chosen according to the proportion of colors in the
+            existing coloring. False means each color has an equal probability
+            of being chosen. Defaults to False.
+
+    Raises:
+        TypeError: raised if some element of the list of colors isn't a string.
+        ValueError: raised if 
+
+    Returns:
+        list[Color]: A random coloring
+    """
+    # Validate that all the colors in the colors list are strings
     if not all(isinstance(color, str) for color in colors):
         raise TypeError("All input color values must be strings.")
 
+    # Initialize new coloring and a palette to serve as the source for colors
     new_coloring: list[Color] = []
     palette: list[Color]
 
-    if allowed_colors is not None:
-        _validate_palette(allowed_colors)
-        palette = allowed_colors
-    else:
-        palette = list(colors) if proportional else list(set(colors))
-
-    if not palette and colors:
-        raise ValueError("Color palette is empty but colors were provided.")
+    # If proportional == True, make the palette just a copy of colors. If not,
+    #   make the palette a list of all the colors in colors, without duplicates.
+    palette = list(colors) if proportional else list(set(colors))
     
-    if proportional:
-        for _ in range(len(colors)):
-            new_coloring.append(choice(palette))
-    
-    else:
-        for _ in range(len(colors)):
-            new_coloring.append(choice(palette))
+    # Append a random color for each node in the original coloring, from the
+    #   palette
+    for _ in range(len(colors)):
+        new_coloring.append(choice(palette))
             
     return new_coloring
