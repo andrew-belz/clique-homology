@@ -316,8 +316,7 @@ def betti_numbers(
     method: str = "clique",
     allowed_colors: list[str] | None = None,
 ) -> np.ndarray:
-    """
-    Compute the Betti numbers of a colored graph. 
+    """Compute the Betti numbers of a colored graph. 
 
     If 'clique' method is specified (default), 
     build simplicial complex out of all monochromatic cliques for the entire graph.
@@ -330,17 +329,28 @@ def betti_numbers(
     If the resulting matrix of the 'subgraph' method is summed by rows, it will yield the result
     of the 'clique' method.
     
-    :param G: A colored graph.
-    :type G: Union[nk.Graph, nx.Graph]
+    Args:
+        G (Union[nk.Graph, nx.Graph]): A colored graph.
+        colors (list[str]): A list mapping each node in G (index) to a color
+        method (str, optional): A string speficying which method to use.
+            Defaults to "clique".
+        allowed_colors (list[str] | None, optional): A list of color names for 
+            validating the coloring. Defaults to None.
 
-    :param attr: A dictionary of node attributes, with attribute as value and node as key.
-    :type attr: dict
+    Raises:
+        ValueError: the method argument either needs to be "subgraph" or
+            "clique."
+
+    Returns:
+        np.ndarray: _description_
     """
+
     if method not in ["subgraph", "clique"]:
         raise ValueError(f"Invalid method '{method}'. Expected 'subgraph', or 'clique'.")
     _validate_colors(G, colors, allowed_colors)
 
-# note to self: a lot of this code can be refactored, and chunks can be combined between methods
+    # note to self: a lot of this code can be refactored, and chunks can be
+    #   combined between methods
 
     max_len = get_max_clique_size(G)
 
