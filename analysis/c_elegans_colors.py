@@ -18,7 +18,7 @@ def c_elegans_colors():
             try:
                 i = data[neuron][0]
                 group = data[neuron][1]
-
+                
                 neurons.append(neuron)
                 I.append(i)
                 groups.append(group)
