@@ -349,16 +349,10 @@ def betti_numbers(
         raise ValueError(f"Invalid method '{method}'. Expected 'subgraph', or 'clique'.")
     _validate_colors(G, colors, allowed_colors)
 
-    # note to self: a lot of this code can be refactored, and chunks can be
-    #   combined between methods
-
     max_len = get_max_clique_size(G)
 
     if method == "subgraph":
         # in this case, compute all the betti numbers separately
-        #   for each colored subgraph. for this one, we may want
-        #   to rework it so that it simply considers colors to 
-        #   partition into components instead
         betti_lists = []
         for subgraph in get_colored_subgraphs(G, colors):
 

@@ -28,7 +28,9 @@ def test_get_max_clique_size_for_empty_graph() -> None:
         (nx.complete_graph(4), 4),
     ],
 )
-def test_get_max_clique_size_known_graphs(graph: nx.Graph, expected: int) -> None:
+def test_get_max_clique_size_known_graphs(
+    graph: nx.Graph, expected: int
+    ) -> None:
     assert get_max_clique_size(nx_to_nk(graph)) == expected
 
 
@@ -88,7 +90,8 @@ def test_ranks_and_nullities_known_cases(
 
 def test_betti_numbers_rejects_invalid_method() -> None:
     with pytest.raises(ValueError, match="Invalid method"):
-        betti_numbers(nx_to_nk(nx.path_graph(3)), ["red", "red", "red"], method="bad")
+        betti_numbers(nx_to_nk(nx.path_graph(3)), 
+                      ["red"] * 3, method="bad")
 
 
 def test_betti_numbers_rejects_color_length_mismatch() -> None:
@@ -107,7 +110,8 @@ def test_betti_numbers_rejects_non_string_palette_values() -> None:
 
 def test_betti_numbers_rejects_empty_palette_with_nonempty_coloring() -> None:
     with pytest.raises(ValueError, match="palette is empty"):
-        betti_numbers(nx_to_nk(nx.path_graph(3)), ["red", "red", "red"], allowed_colors=[])
+        betti_numbers(nx_to_nk(nx.path_graph(3)), 
+                      ["red"] * 3, allowed_colors=[])
 
 
 def test_betti_numbers_empty_graph_shapes() -> None:
@@ -131,5 +135,6 @@ def test_betti_numbers_clique_equals_summed_subgraph_rows() -> None:
 
 
 def test_betti_numbers_path_graph_single_color() -> None:
-    observed = betti_numbers(nx_to_nk(nx.path_graph(4)), ["red"] * 4, method="clique")
+    observed = betti_numbers(nx_to_nk(nx.path_graph(4)), 
+                             ["red"] * 4, method="clique")
     assert np.array_equal(observed, np.array([1, 0]))

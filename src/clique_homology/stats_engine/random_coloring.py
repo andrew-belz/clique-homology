@@ -2,8 +2,6 @@ from random import choice
 from typing import TypeAlias
 
 Color: TypeAlias = str
-DEFAULT_COLOR_PALETTE: list[Color] = ["RED", "BLUE", "GREEN", "YELLOW"]
-
 
 def random_coloring(
     colors: list[Color],

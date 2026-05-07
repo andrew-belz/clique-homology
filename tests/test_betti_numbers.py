@@ -17,7 +17,7 @@ import matplotlib.pyplot as plt
 seed(122)
 
 # --- Support Functions ---
-
+@pytest.fixture
 def generate_edge_case_graphs():
 
     # convert a networkx graph to a networkit graph
@@ -83,7 +83,6 @@ def generate_edge_case_graphs():
     exp7 = np.array([2, 2])
 
     # octohedreon: a hollow 2-sphere comprised of triangles
-    # this is the 8th test case: nice.
     G8 = nx.octahedral_graph() 
     G8 = convert(G8)
     c8 = ["red"] * 6
