@@ -7,7 +7,7 @@ def random_coloring(
     """Generates a random coloring based on an existing coloring.
 
     Args:
-        colors (list[Color]): A coloring to serve as the basis for the new
+        colors (list[str]): A coloring to serve as the basis for the new
             random coloring.
         proportional (bool, optional): True means the colors for the random
             coloring will be chosen according to the proportion of colors in the
@@ -18,7 +18,7 @@ def random_coloring(
         TypeError: raised if some element of the list of colors isn't a string.
         
     Returns:
-        list[Color]: A random coloring
+        list[str]: A random coloring
     """
     # Validate that all the colors in the colors list are strings
     if not all(isinstance(color, str) for color in colors):

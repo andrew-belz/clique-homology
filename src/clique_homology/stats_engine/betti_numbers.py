@@ -88,7 +88,7 @@ def get_colored_subgraphs(G:nk.Graph, node_colors:list[str]):
     # Group nodes by their attribute value, forming color:[nodes] key-value
     #   pairs inside node_subsets
     node_subsets: dict[str, list[int]] = {}
-    for node, color in enumerate(node_colors):
+    for node, color in zip(G.iterNodes(), node_colors):
         if color not in node_subsets:
             node_subsets[color] = [node]
         else:
@@ -162,12 +162,6 @@ def boundary_maps(cliques:list) -> list:
             position_dict2 (dict): Dictionary of positions for (k)-cliques.
                 dict(tuple:int)
 
-        Raises:
-            ValueError: raised if a specific face isn't found when we look
-                for it. This shouldn't happen, because if it did, it would
-                mean that the tuple of vertices we attempted to find a 
-                face of wasn't actually a clique.
-
         Returns:
             np.ndarray: a 2d numpy array representing the boundary map for 
                 k-1 cliques to k cliques.
@@ -184,13 +178,7 @@ def boundary_maps(cliques:list) -> list:
                 # get index of that face in the position dict 1 and set its
                 #   corresponding position in the boundary map to 1 to 
                 #   indicate its presence
-                if face in position_dict1:
-                    M[position_dict1[face], v2] = 1
-                else:
-                    # hopefully this should never happen, with the way that
-                    #   we've written things
-                    raise ValueError(f"Face {face} not found in \
-                                     position_dict1.")
+                M[position_dict1[face], v2] = 1
 
         return M
 
@@ -264,24 +252,16 @@ def ranks_and_nullities(M:np.array) -> tuple:
 def _validate_colors(
     G: nk.Graph,
     colors: list[str],
-    allowed_colors: list[str] | None = None,
 ) -> None:
-    """Ensure a coloring is valid for a graph G, given a list of allowed colors.
+    """Ensure a coloring is valid for a graph G.
 
     Args:
         G (nk.Graph): a graph
         colors (list[str]): a list mapping each node (index) in G to a color.
-        allowed_colors (list[str] | None, optional): a list of allowed colors. 
-            Defaults to None.
 
     Raises:
         ValueError: length of coloring list must match num nodes in G.
         TypeError: colors values must be strings.
-        TypeError: allowed color values must be strings.
-        ValueError: if an allowed colors list is passed in, it must not be
-            empty.
-        ValueError: there must not be any color values in the coloring that 
-            aren't in the list of allowed colors.
     """
 
     if len(colors) != G.numberOfNodes():
@@ -292,29 +272,12 @@ def _validate_colors(
     if not all(isinstance(color, str) for color in colors):
         raise TypeError("All node colors must be strings.")
 
-    if allowed_colors is None:
-        return
-
-    if not all(isinstance(color, str) for color in allowed_colors):
-        raise TypeError("All allowed color values must be strings.")
-
-    allowed_set = set(allowed_colors)
-    if not allowed_set and colors:
-        raise ValueError("Allowed color palette is empty but graph coloring is not.")
-
-    invalid = sorted({color for color in colors if color not in allowed_set})
-    if invalid:
-        raise ValueError(
-            "Found colors outside the allowed palette: "
-            + ", ".join(invalid)
-        )
-
+   
 
 def betti_numbers(
     G: nk.Graph,
     colors: list[str],
     method: str = "clique",
-    allowed_colors: list[str] | None = None,
 ) -> np.ndarray:
     """Compute the Betti numbers of a colored graph. 
 
@@ -334,8 +297,6 @@ def betti_numbers(
         colors (list[str]): A list mapping each node in G (index) to a color
         method (str, optional): A string speficying which method to use.
             Defaults to "clique".
-        allowed_colors (list[str] | None, optional): A list of color names for 
-            validating the coloring. Defaults to None.
 
     Raises:
         ValueError: the method argument either needs to be "subgraph" or
@@ -347,7 +308,10 @@ def betti_numbers(
 
     if method not in ["subgraph", "clique"]:
         raise ValueError(f"Invalid method '{method}'. Expected 'subgraph', or 'clique'.")
-    _validate_colors(G, colors, allowed_colors)
+    _validate_colors(G, colors)
+
+    if G.numberOfNodes() == 0:
+        return np.array([])
 
     max_len = get_max_clique_size(G)
 
@@ -376,11 +340,8 @@ def betti_numbers(
                 betti = [nullities[k] - ranks[k] for k in range(
                                                        len(ranks))]
             else:
-                # handle the edge cases
-                if not cliques:
-                    betti = []
-                else:
-                    betti = [len(cliques)]
+                betti = [len(cliques)]
+                
             betti_lists.append(betti)
         
         # pad with zeros
@@ -415,15 +376,8 @@ def betti_numbers(
                 betti = []
             else:
                 betti = [len(cliques)]
+            betti = [len(cliques)]
         # pad with zeros to ensure consistency in size across permutations
         padded_betti = betti + [0] * (max_len - len(betti))
         # vector of betti numbers
         return np.array(padded_betti)
-    
-    else:
-        pass
-
-# ----------------------------------------------------------------------------------------------------------------
-
-if __name__ == "__main__":
-    pass

@@ -6,7 +6,6 @@ def null_distribution(
     graph: Graph,
     coloring: list[str],
     iterations: int = 100,
-    allowed_colors: list[str] | None = None,
 ) -> list[np.ndarray]:
     """Partitions a graph according to a random coloring, computes the vector
         of betti numbers for that colored subgraph, appends it to a list, and
@@ -19,8 +18,6 @@ def null_distribution(
         coloring (list[str]): A coloring of the graph.
         iterations (int, optional): Desired size of null distribution. Defaults
             to 100.
-        allowed_colors (list[str] | None, optional): A list of colors from which
-            to validate the list of colors. Defaults to None.
 
     Raises:
         ValueError: rased if iterations is a negative number.
@@ -38,7 +35,6 @@ def null_distribution(
     #   new coloring and add it to the distribution
     for _ in range(iterations):
         new_coloring = random_coloring(coloring, proportional=True)
-        distribution.append(betti_numbers(graph, new_coloring,
-                                          allowed_colors=allowed_colors))
+        distribution.append(betti_numbers(graph, new_coloring))
     
     return distribution

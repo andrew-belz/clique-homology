@@ -6,15 +6,13 @@ from networkit import Graph, nxadapter
 import numpy as np
 
 def stats_engine(
-        G:Graph, colors:list[str], iters:int=100, 
-        allowed_colors: list[str] | None = None
+        G:Graph, colors:list[str], iters:int=100
         ) -> tuple[float, float, np.ndarray]:
     # out: list of numpy arrays
     null_dist = np.array(null_distribution(graph=G, 
                                            coloring=colors, 
-                                           iterations=iters, 
-                                           allowed_colors=allowed_colors))
-    obs_betti = betti_numbers(G=G, colors=colors, allowed_colors=allowed_colors)
+                                           iterations=iters))
+    obs_betti = betti_numbers(G=G, colors=colors)
     pval, obs, dist = calculate_p_vector(obs_betti, null_dist)
 
     return pval, obs, dist
