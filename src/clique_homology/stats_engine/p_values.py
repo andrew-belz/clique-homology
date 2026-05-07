@@ -69,14 +69,15 @@ def calculate_p_vector(obs_betti, null_betti_matrix):
         d2_obs = np.dot(diff_obs, y_obs)
 
         # solve for all null vectors simultaneously
-        # diff_null.T is (m x n), cho_solve returns (m x n), so we transpose back to (n x m)
+        # diff_null.T is (m x n), cho_solve returns (m x n), 
+        # so we transpose back to (n x m)
         Y_null = cho_solve((c, lower), diff_null.T).T
 
         # Use einsum for optimized speed
         d2_null = np.einsum('ij,ij->i', diff_null, Y_null)
 
     except np.linalg.LinAlgError:
-        # Fallback for highly singular/sparse matricies: Symmetric Pseudo-Inverse
+        # Fallback for highly singular/sparse matricies: Symmetric Psoudo-Inverse
         inv_cov = pinvh(cov_null_reg)
 
         # Calculate distances using the pseudo-inverse

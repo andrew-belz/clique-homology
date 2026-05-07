@@ -19,7 +19,8 @@ def test_betti_numbers_rejects_non_string_colors() -> None:
 def test_betti_numbers_rejects_color_outside_allowed_palette() -> None:
     graph = _line_graph_nk()
     with pytest.raises(ValueError, match="outside the allowed palette"):
-        betti_numbers(graph, ["RED", "BLUE", "GREEN"], allowed_colors=["RED", "BLUE"])
+        betti_numbers(graph, ["RED", "BLUE", "GREEN"], 
+                      allowed_colors=["RED", "BLUE"])
 
 
 def test_betti_numbers_uses_case_sensitive_palette_membership() -> None:
@@ -29,10 +30,11 @@ def test_betti_numbers_uses_case_sensitive_palette_membership() -> None:
 
 
 def test_random_coloring_stays_within_allowed_palette() -> None:
-    recolored = random_coloring(["RED", "BLUE", "GREEN"], allowed_colors=["RED", "BLUE"])
+    recolored = random_coloring(["RED", "BLUE", "GREEN"], 
+                                allowed_colors=["RED", "BLUE"])
     assert set(recolored).issubset({"RED", "BLUE"})
     assert len(recolored) == 3
-
+    
 
 def test_random_coloring_rejects_non_string_inputs() -> None:
     with pytest.raises(TypeError, match="must be strings"):
