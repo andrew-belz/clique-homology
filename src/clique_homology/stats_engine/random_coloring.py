@@ -1,12 +1,9 @@
 from random import choice
-from typing import TypeAlias
-
-Color: TypeAlias = str
 
 def random_coloring(
-    colors: list[Color],
+    colors: list[str],
     proportional: bool = False
-) -> list[Color]:
+) -> list[str]:
     """Generates a random coloring based on an existing coloring.
 
     Args:
@@ -28,8 +25,8 @@ def random_coloring(
         raise TypeError("All input color values must be strings.")
 
     # Initialize new coloring and a palette to serve as the source for colors
-    new_coloring: list[Color] = []
-    palette: list[Color]
+    new_coloring: list[str] = []
+    palette: list[str]
 
     # If proportional == True, make the palette just a copy of colors. If not,
     #   make the palette a list of all the colors in colors, without duplicates.
