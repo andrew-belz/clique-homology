@@ -1,8 +1,8 @@
 from clique_homology.stats_engine.stats_engine import stats_engine
 from c_elegans_colors import c_elegans_colors
 from c_elegans_edges import c_elegans_edges
-from pandas import DataFrame
 
+from pandas import DataFrame
 import networkit as nk
 
 def main():
@@ -10,6 +10,8 @@ def main():
     edges = c_elegans_edges()
     neurons, indices, colors = c_elegans_colors()
     num_nodes = len(colors)
+
+    # initialize networkit graph object
     g = nk.Graph(num_nodes, weighted=False, directed=False)
 
     # 3. Add edges efficiently

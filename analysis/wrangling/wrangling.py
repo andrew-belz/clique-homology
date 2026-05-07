@@ -53,9 +53,9 @@ if __name__ == "__main__":
     Record functional group for each neuron.
     """
 
-    isolated_nodes = []
     # the neuron and its respective group are recorded in this csv
-    with open(r"c_elegans_data\maleChemicalFunctionGroupColoringByColumn.csv", "r") as file:
+    path = r"c_elegans_data\maleChemicalFunctionGroupColoringByColumn.csv"
+    with open(path, "r") as file:
         reader = csv.reader(file)
         for row in reader:
             neuron = row[0]
@@ -73,7 +73,8 @@ if __name__ == "__main__":
 
     # store integer edges in a csv
     edge_df = pd.DataFrame(integer_edges)
-    edge_df.to_csv(r"c_elegans_data\c_elegans_edges.csv", index=False, header=False)
+    edge_df.to_csv(r"c_elegans_data\c_elegans_edges.csv", 
+                   index=False, header=False)
 
     # store neuron-integer map
     with open(r"c_elegans_data\neuron_indices.json", "w") as json_file:
