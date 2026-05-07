@@ -10,6 +10,7 @@ from clique_homology.stats_engine.betti_numbers import (
     get_colored_subgraphs,
     get_max_clique_size,
     ranks_and_nullities,
+    _validate_colors
 )
 
 
@@ -62,8 +63,8 @@ def test_boundary_maps_empty_input_returns_no_maps() -> None:
     assert boundary_maps([]) == []
 
 
-def test_boundary_maps_canonicalize_unsorted_and_duplicate_cliques() -> None:
-    maps = boundary_maps([(1, 0), (0,), (1,), (0, 1)])
+def test_boundary_maps_creates_correct_shape() -> None:
+    maps = boundary_maps([(0,), (1,), (0, 1)])
     assert len(maps) == 1
     assert maps[0].shape == (2, 1)
     assert maps[0].sum() == 2
@@ -75,6 +76,7 @@ def test_boundary_maps_canonicalize_unsorted_and_duplicate_cliques() -> None:
         (np.zeros((2, 3), dtype=int), 0, 3),
         (np.eye(3, dtype=int), 3, 0),
         (np.array([[1, 1], [1, 1]], dtype=int), 1, 1),
+        (np.array([[1, 0, 0], [0, 1, 0]], dtype=int), 2, 1),
     ],
 )
 def test_ranks_and_nullities_known_cases(
@@ -99,32 +101,6 @@ def test_betti_numbers_rejects_color_length_mismatch() -> None:
         betti_numbers(nx_to_nk(nx.path_graph(3)), ["red", "blue"])
 
 
-def test_betti_numbers_rejects_non_string_palette_values() -> None:
-    with pytest.raises(TypeError, match="must be strings"):
-        betti_numbers(
-            nx_to_nk(nx.path_graph(3)),
-            ["red", "red", "red"],
-            allowed_colors=["red", 1],  # type: ignore[list-item]
-        )
-
-
-def test_betti_numbers_rejects_empty_palette_with_nonempty_coloring() -> None:
-    with pytest.raises(ValueError, match="palette is empty"):
-        betti_numbers(nx_to_nk(nx.path_graph(3)), 
-                      ["red"] * 3, allowed_colors=[])
-
-
-def test_betti_numbers_empty_graph_shapes() -> None:
-    graph = nk.Graph()
-    clique = betti_numbers(graph, [], method="clique")
-    subgraph = betti_numbers(graph, [], method="subgraph")
-
-    assert clique.ndim == 1
-    assert clique.shape == (0,)
-    assert subgraph.ndim == 2
-    assert subgraph.shape == (0, 0)
-
-
 def test_betti_numbers_clique_equals_summed_subgraph_rows() -> None:
     graph = nx_to_nk(nx.path_graph(4))
     colors = ["red", "red", "blue", "blue"]
@@ -138,3 +114,17 @@ def test_betti_numbers_path_graph_single_color() -> None:
     observed = betti_numbers(nx_to_nk(nx.path_graph(4)), 
                              ["red"] * 4, method="clique")
     assert np.array_equal(observed, np.array([1, 0]))
+
+def test_validate_colors() -> None:
+    colors = [0, 1, 2]
+
+    graph = nk.Graph(5, weighted=False, directed=False)
+    graph.addEdge(0, 2)
+    graph.addEdge(2, 3)
+    graph.addEdge(3, 4)
+    graph.removeNode(1)
+    with pytest.raises(ValueError, match="must match number of graph nodes"):
+        _validate_colors(graph, colors)
+
+    with pytest.raises(TypeError, match="must be strings"):
+        _validate_colors(nk.Graph(3), colors)

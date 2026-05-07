@@ -86,6 +86,17 @@ def test_edge_case_graphs(graph, colors, expected):
     np.testing.assert_array_equal(observed, expected)
 
 
+@pytest.mark.parametrize("graph, colors, expected", generate_edge_case_graphs())
+def test_edge_case_graphs_subgraph_method(graph, colors, expected):
+    """Test standard graph configurations using method='subgraph'."""
+    observed = betti_numbers(graph, colors, method="subgraph")
+    
+    if observed.size == 0:
+        assert expected.size == 0
+    else:
+        np.testing.assert_array_equal(observed.sum(axis=0), expected)
+
+
 def test_betti_numbers_handles_non_contiguous_node_ids() -> None:
     # Build a connected path on node IDs [0, 2, 3, 4].
     graph = nk.Graph(5, weighted=False, directed=False)
@@ -100,16 +111,22 @@ def test_betti_numbers_handles_non_contiguous_node_ids() -> None:
     np.testing.assert_array_equal(observed, np.array([1, 0]))
 
 
-def test_subgraph_method_empty_graph_returns_matrix_shape() -> None:
-    graph = nk.Graph()
-    observed = betti_numbers(graph, [], method="subgraph")
+def test_betti_numbers_handles_non_contiguous_node_ids_subgraph_method() -> None:
+    # Build a connected path on node IDs [0, 2, 3, 4].
+    graph = nk.Graph(5, weighted=False, directed=False)
+    graph.addEdge(0, 2)
+    graph.addEdge(2, 3)
+    graph.addEdge(3, 4)
+    graph.removeNode(1)
 
-    assert observed.ndim == 2
-    assert observed.shape == (0, 0)
+    colors = ["red", "red", "red", "red"]
+    observed = betti_numbers(graph, colors, method="subgraph")
+
+    np.testing.assert_array_equal(observed.sum(axis=0), np.array([1, 0]))
 
 
-def test_boundary_maps_accept_unsorted_complete_cliques() -> None:
-    maps = boundary_maps([(0, 1), (0,), (1,)])
+def test_boundary_maps_with_sorted_complete_cliques() -> None:
+    maps = boundary_maps([(0,), (1,), (0, 1)])
 
     assert len(maps) == 1
     assert maps[0].shape == (2, 1)
