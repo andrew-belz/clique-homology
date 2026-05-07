@@ -1,98 +1,73 @@
-# for generating test cases
-import networkx as nx # type: ignore
-import networkit as nk # type: ignore
-from random import choice, seed, sample
 import pytest
-import time
-
-# zero multi-threading errors to worry about
-nk.setNumberOfThreads(1)
+import numpy as np
+import networkx as nx
+import networkit as nk
+from random import seed
 
 # functions to test
-from clique_homology.stats_engine.betti_numbers import *
+from clique_homology.stats_engine.betti_numbers import betti_numbers, boundary_maps
 
-# to visually verify the test case
-import matplotlib.pyplot as plt
-
+# --- Test Environment Setup ---
+# Zero multi-threading errors to worry about
+nk.setNumberOfThreads(1)
 seed(122)
 
 # --- Support Functions ---
-@pytest.fixture
 def generate_edge_case_graphs():
-
+    """
+    Generates test data for Betti numbers.
+    Returns a list of tuples: (networkit_graph, colors_list, expected_array)
+    """
     # convert a networkx graph to a networkit graph
-    convert = lambda G: nk.nxadapter.nx2nk(G)
+    convert = nk.nxadapter.nx2nk 
 
-    """
-    use method='clique'.
-    G[i]: nk.Graph object.
-    c[i]: associated node coloring.
-    exp[i]: expected output of the betti_numbers function.
-    """
-
-    # empty graph
+    # Case 0: empty graph
     G0 = nk.Graph()
     c0 = []
     exp0 = np.array([])
 
-    # 5 nodes, 0 edges, 1 color
-    G1 = nx.Graph()
-    G1.add_nodes_from([0, 1, 2, 3, 4])
-    G1 = convert(G1)
+    # Case 1: 5 nodes, 0 edges, 1 color
+    G1 = convert(nx.Graph([(0, 0), (1, 1), (2, 2), (3, 3), (4, 4)])) # ensuring nodes exist without edges
+    G1 = nk.Graph(5) # Simpler way to initialize 5 disconnected nodes in networkit
     c1 = ["red"] * 5
     exp1 = np.array([5])
 
-    # 1 node, 0 edges, 1 color
-    G2 = nx.Graph()
-    G2.add_node(0)
-    G2 = convert(G2)
+    # Case 2: 1 node, 0 edges, 1 color
+    G2 = nk.Graph(1)
     c2 = ["red"]
     exp2 = np.array([1])
 
-    # 2 nodes, 1 edge, 1 color
-    G3 = nx.Graph([(0, 1)])
-    G3 = convert(G3)
+    # Case 3: 2 nodes, 1 edge, 1 color
+    G3 = convert(nx.Graph([(0, 1)]))
     c3 = ["red"] * 2
     exp3 = np.array([1, 0])
 
-    # 2 nodes, 1 edge, 2 colors
-    G4 = nx.Graph([(0, 1)])
-    G4 = convert(G4)
+    # Case 4: 2 nodes, 1 edge, 2 colors
+    G4 = convert(nx.Graph([(0, 1)]))
     c4 = ["red", "blue"]
     exp4 = np.array([2, 0])
 
-    # 3 nodes, 3 edges, 1 color
-    G5 = nx.complete_graph(3)
-    G5 = convert(G5)
+    # Case 5: 3 nodes, 3 edges, 1 color
+    G5 = convert(nx.complete_graph(3))
     c5 = ["red"] * 3
     exp5 = np.array([1, 0, 0])
 
-    # petersen graph, 1 color
-    G6 = nx.petersen_graph()
-    G6 = convert(G6)
+    # Case 6: petersen graph, 1 color
+    G6 = convert(nx.petersen_graph())
     c6 = ["red"] * 10
     exp6 = np.array([1, 6])
-    # use this code to see what this graph looks like:
-    # nx.draw(nx.petersen_graph(), node_color = c5)
-    # plt.show()
-    # plt.clf()
 
-    # petersen graph, 2 colors
-    G7 = G6
+    # Case 7: petersen graph, 2 colors
+    G7 = convert(nx.petersen_graph())
     c7 = ["red"] * 5 + ["blue"] * 5
     exp7 = np.array([2, 2])
 
-    # octohedreon: a hollow 2-sphere comprised of triangles
-    G8 = nx.octahedral_graph() 
-    G8 = convert(G8)
+    # Case 8: octahedron: a hollow 2-sphere comprised of triangles
+    G8 = convert(nx.octahedral_graph()) 
     c8 = ["red"] * 6
     exp8 = np.array([1, 0, 1])
 
-    # nx.draw(nx.octahedral_graph(), node_color = c8)
-    # plt.show()
-    # plt.clf()
-
-    cases = [
+    return [
         (G0, c0, exp0), (G1, c1, exp1),
         (G2, c2, exp2), (G3, c3, exp3),
         (G4, c4, exp4), (G5, c5, exp5),
@@ -100,20 +75,15 @@ def generate_edge_case_graphs():
         (G8, c8, exp8)
     ]
 
-    return cases
+# --- Test Cases ---
 
-# --- Main ---
-
-def test_edge_case_graphs():
-    cases = generate_edge_case_graphs()
-    print("Start")
-
-    for i, (G, c, exp) in enumerate(cases):
-        print(f"Case {i}:")
-        obs = betti_numbers(G, c)
-        print(obs)
-        assert np.array_equal(obs, exp)
-        print("passed")
+@pytest.mark.parametrize("graph, colors, expected", generate_edge_case_graphs())
+def test_edge_case_graphs(graph, colors, expected):
+    """Test standard graph configurations using method='clique'."""
+    observed = betti_numbers(graph, colors)
+    
+    # Use numpy's built-in testing assert for clearer diffs on failure
+    np.testing.assert_array_equal(observed, expected)
 
 
 def test_betti_numbers_handles_non_contiguous_node_ids() -> None:
@@ -127,7 +97,7 @@ def test_betti_numbers_handles_non_contiguous_node_ids() -> None:
     colors = ["red", "red", "red", "red"]
     observed = betti_numbers(graph, colors, method="clique")
 
-    assert np.array_equal(observed, np.array([1, 0]))
+    np.testing.assert_array_equal(observed, np.array([1, 0]))
 
 
 def test_subgraph_method_empty_graph_returns_matrix_shape() -> None:
@@ -144,7 +114,3 @@ def test_boundary_maps_accept_unsorted_complete_cliques() -> None:
     assert len(maps) == 1
     assert maps[0].shape == (2, 1)
     assert maps[0].sum() == 2
-# -------------------------------------------------
-if __name__ == "__main__":
-    print("START")
-    test_edge_case_graphs()
