@@ -7,7 +7,7 @@ import numpy as np
 
 def test_stats_engine():
     nxPG = nx.petersen_graph()
-    colors = np.random.choice(["red", "green"], nxPG.number_of_nodes(), replace=True)
+    colors = np.random.choice(["red", "green"], nxPG.number_of_nodes(), replace=True).tolist()
 
     p, obs, dist = stats_engine(G=nxadapter.nx2nk(nxPG), colors=colors, iters=1000)
 

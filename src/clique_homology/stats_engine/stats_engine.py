@@ -1,6 +1,6 @@
 from clique_homology.stats_engine.betti_numbers import betti_numbers
 from clique_homology.stats_engine.null_distribution import null_distribution
-from clique_homology.stats_engine.p_values import calculate_p_vector
+from clique_homology.stats_engine.p_values import calculate_p_value
 from networkit import Graph
 import numpy as np
 
@@ -12,7 +12,7 @@ def stats_engine(
                                            coloring=colors, 
                                            iterations=iters))
     obs_betti = betti_numbers(G=G, colors=colors)
-    pval, obs, dist = calculate_p_vector(obs_betti, null_dist)
+    pval, obs, dist = calculate_p_value(obs_betti, null_dist)
 
     return pval, obs, dist
 

@@ -29,7 +29,7 @@ def test_p_values_basic():
     random_obs = generate_random_observation(50)
     random_null_dist = make_random_null_dist(50, 50)
 
-    p_val, d2_obs, d2_null = p_values.calculate_p_vector(random_obs, random_null_dist)
+    p_val, d2_obs, d2_null = p_values.calculate_p_value(random_obs, random_null_dist)
 
     assert 0.0 <= p_val <= 1.0
     assert d2_obs >= 0.0
@@ -44,11 +44,11 @@ def test_get_mahalanobis_matches_manual_value() -> None:
     assert observed == pytest.approx(9.0)
 
 
-def test_calculate_p_vector_basic_properties() -> None:
+def test_calculate_p_value_basic_properties() -> None:
     obs = np.array([1.0, 2.0])
     null = np.array([[1.0, 2.0], [1.5, 2.5], [0.5, 1.5], [1.2, 2.2]])
 
-    p_val, d2_obs, d2_null = p_values.calculate_p_vector(obs, null)
+    p_val, d2_obs, d2_null = p_values.calculate_p_value(obs, null)
 
     assert 0.0 <= p_val <= 1.0
     assert isinstance(d2_obs, float)
@@ -56,33 +56,33 @@ def test_calculate_p_vector_basic_properties() -> None:
     assert d2_null.shape == (4,)
 
 
-def test_calculate_p_vector_handles_singular_covariance() -> None:
+def test_calculate_p_value_handles_singular_covariance() -> None:
     obs = np.array([2.0, 2.0])
     null = np.array([[1.0, 1.0], [2.0, 2.0], [3.0, 3.0]])
 
-    p_val, d2_obs, d2_null = p_values.calculate_p_vector(obs, null)
+    p_val, d2_obs, d2_null = p_values.calculate_p_value(obs, null)
 
     assert 0.0 <= p_val <= 1.0
     assert d2_obs >= 0.0
     assert np.all(d2_null >= 0.0)
 
 
-def test_calculate_p_vector_supports_1d_observations() -> None:
+def test_calculate_p_value_supports_1d_observations() -> None:
     obs = np.array([2.0])
     null = np.array([[1.0], [2.0], [3.0], [4.0]])
 
-    p_val, d2_obs, d2_null = p_values.calculate_p_vector(obs, null)
+    p_val, d2_obs, d2_null = p_values.calculate_p_value(obs, null)
 
     assert 0.0 <= p_val <= 1.0
     assert isinstance(d2_obs, float)
     assert d2_null.shape == (4,)
 
 
-def test_calculate_p_vector_rejects_shape_mismatch() -> None:
+def test_calculate_p_value_rejects_shape_mismatch() -> None:
     with pytest.raises(ValueError, match="shape"):
-        p_values.calculate_p_vector(np.array([1.0, 2.0]), np.array([[1.0], [2.0]]))
+        p_values.calculate_p_value(np.array([1.0, 2.0]), np.array([[1.0], [2.0]]))
 
-def test_calculate_p_vector_linalg_error_fallback():
+def test_calculate_p_value_linalg_error_fallback():
     """
     Tests the LinAlgError exception block by forcing cho_factor to fail,
     ensuring the pinvh fallback calculates distances correctly.
@@ -97,7 +97,7 @@ def test_calculate_p_vector_linalg_error_fallback():
 
     # Patch cho_factor to simulate a singular matrix error
     with patch('clique_homology.stats_engine.p_values.cho_factor', side_effect=np.linalg.LinAlgError):
-        p_val, d2_obs, d2_null = p_values.calculate_p_vector(obs_betti, null_betti_matrix)
+        p_val, d2_obs, d2_null = p_values.calculate_p_value(obs_betti, null_betti_matrix)
 
     # Assert that the function still returns the expected data types and shapes
     assert isinstance(p_val, float)
