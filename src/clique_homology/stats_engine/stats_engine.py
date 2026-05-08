@@ -1,8 +1,7 @@
 from clique_homology.stats_engine.betti_numbers import betti_numbers
 from clique_homology.stats_engine.null_distribution import null_distribution
-# change this back to p_values instead
 from clique_homology.stats_engine.p_values import calculate_p_vector
-from networkit import Graph, nxadapter
+from networkit import Graph
 import numpy as np
 
 def stats_engine(

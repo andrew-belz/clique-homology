@@ -1,5 +1,6 @@
 import numpy as np
 import pytest
+from unittest.mock import patch
 
 from clique_homology.stats_engine import p_values
 
@@ -80,3 +81,47 @@ def test_calculate_p_vector_supports_1d_observations() -> None:
 def test_calculate_p_vector_rejects_shape_mismatch() -> None:
     with pytest.raises(ValueError, match="shape"):
         p_values.calculate_p_vector(np.array([1.0, 2.0]), np.array([[1.0], [2.0]]))
+
+def test_calculate_p_vector_linalg_error_fallback():
+    """
+    Tests the LinAlgError exception block by forcing cho_factor to fail,
+    ensuring the pinvh fallback calculates distances correctly.
+    """
+    obs_betti = np.array([1.0, 2.0])
+    # Create a simple null matrix (n permutations x m dimensions)
+    null_betti_matrix = np.array([
+        [1.1, 2.1], 
+        [0.9, 1.9], 
+        [1.0, 2.0]
+    ])
+
+    # Patch cho_factor to simulate a singular matrix error
+    with patch('clique_homology.stats_engine.p_values.cho_factor', side_effect=np.linalg.LinAlgError):
+        p_val, d2_obs, d2_null = p_values.calculate_p_vector(obs_betti, null_betti_matrix)
+
+    # Assert that the function still returns the expected data types and shapes
+    assert isinstance(p_val, float)
+    assert 0.0 <= p_val <= 1.0
+    assert isinstance(d2_obs, float)
+    assert isinstance(d2_null, np.ndarray)
+    assert d2_null.shape == (3,)  # Matches the number of rows in null_betti_matrix
+
+
+def test_validate_p_vector_inputs_exceptions():
+    """Tests all ValueError branches in the input validation."""
+    
+    # 1. obs_betti is not 1D
+    with pytest.raises(ValueError, match="obs_betti must be a 1D array"):
+        p_values._validate_p_vector_inputs(np.array([[1, 2]]), np.array([[1, 2], [3, 4]]))
+
+    # 2. null_betti_matrix is not 2D
+    with pytest.raises(ValueError, match="null_betti_matrix must be a 2D array"):
+        p_values._validate_p_vector_inputs(np.array([1, 2]), np.array([1, 2, 3]))
+
+    # 3. null_betti_matrix is empty
+    with pytest.raises(ValueError, match="null_betti_matrix must contain at least one row"):
+        p_values._validate_p_vector_inputs(np.array([1, 2]), np.empty((0, 2)))
+
+    # 4. Shape mismatch between obs and null
+    with pytest.raises(ValueError, match="obs_betti shape must match null_betti_matrix column count"):
+        p_values._validate_p_vector_inputs(np.array([1, 2]), np.array([[1, 2, 3], [4, 5, 6]]))
