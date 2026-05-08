@@ -62,16 +62,6 @@ def get_cliques(G:nk.Graph):
 
 # ----------------------------------------------------------------------------------------------------------------
 
-
-    """
-    Return a generator for colored subgraphs of a graph G.
-    
-    :param G: A colored graph.
-    :type G: nk.Graph
-    :param node_attr: A dictionary mapping node IDs to their attribute (color).
-    :type node_attr: list
-    """
-
 def get_colored_subgraphs(G:nk.Graph, node_colors:list[str]):
     """Return a generator for colored subgraphs of a graph G. 
 
@@ -266,7 +256,8 @@ def _validate_colors(
 
     if len(colors) != G.numberOfNodes():
         raise ValueError(
-            f"Coloring length ({len(colors)}) must match number of graph nodes ({G.numberOfNodes()})."
+            f"Coloring length ({len(colors)}) must match number of graph nodes \
+                                                        ({G.numberOfNodes()})."
         )
 
     if not all(isinstance(color, str) for color in colors):
@@ -281,16 +272,16 @@ def betti_numbers(
 ) -> np.ndarray:
     """Compute the Betti numbers of a colored graph. 
 
-    If 'clique' method is specified (default), 
-    build simplicial complex out of all monochromatic cliques for the entire graph.
-    Returns a vector of Betti numbers.
+    If 'clique' method is specified (default), build simplicial complex out of
+        all monochromatic cliques for the entire graph. Returns a vector of
+        Betti numbers.
     
-    If 'subgraph' method is specified, 
-    builds a distinct simplicial complex for each colored subgraph.
-    Returns a matrix where each row vector gives the Betti numbers for a colored subgraph.
+    If 'subgraph' method is specified, builds a distinct simplicial complex for
+        each colored subgraph. Returns a matrix where each row vector gives the
+        Betti numbers for a colored subgraph.
 
-    If the resulting matrix of the 'subgraph' method is summed by rows, it will yield the result
-    of the 'clique' method.
+    If the resulting matrix of the 'subgraph' method is summed by rows, it will
+        yield the result of the 'clique' method.
     
     Args:
         G (Union[nk.Graph, nx.Graph]): A colored graph.
@@ -303,11 +294,13 @@ def betti_numbers(
             "clique."
 
     Returns:
-        np.ndarray: _description_
+        np.ndarray: See the second and third paragraphs of the docstring for
+            details.
     """
 
     if method not in ["subgraph", "clique"]:
-        raise ValueError(f"Invalid method '{method}'. Expected 'subgraph', or 'clique'.")
+        raise ValueError(f"Invalid method '{method}'. Expected 'subgraph', or \
+                                                                    'clique'.")
     _validate_colors(G, colors)
 
     if G.numberOfNodes() == 0:
@@ -354,8 +347,10 @@ def betti_numbers(
 
     
     elif method == "clique":
-        # the difference here is we compute the cliques, aggregate them, then compute the homology
-        cliques = sorted([clique for H in get_colored_subgraphs(G, colors) for clique in get_cliques(H)], key=len)
+        # the difference here is we compute the cliques, aggregate them, then
+        #   compute the homology
+        cliques = sorted([clique for H in get_colored_subgraphs(G, colors) for
+                                            clique in get_cliques(H)], key=len)
         maps = boundary_maps(cliques)
         ranks, nullities = [], []
 

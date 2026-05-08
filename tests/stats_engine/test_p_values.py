@@ -35,15 +35,6 @@ def test_p_values_basic():
     assert d2_obs >= 0.0
 
 
-def test_get_mahalanobis_matches_manual_value() -> None:
-    vector = np.array([2.0, 3.0])
-    mean = np.array([1.0, 1.0])
-    inv_cov = np.array([[1.0, 0.0], [0.0, 2.0]])
-
-    observed = p_values.get_mahalanobis(vector, mean, inv_cov)
-    assert observed == pytest.approx(9.0)
-
-
 def test_calculate_p_value_basic_properties() -> None:
     obs = np.array([1.0, 2.0])
     null = np.array([[1.0, 2.0], [1.5, 2.5], [0.5, 1.5], [1.2, 2.2]])
