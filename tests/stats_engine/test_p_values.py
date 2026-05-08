@@ -107,7 +107,7 @@ def test_calculate_p_value_linalg_error_fallback():
     assert d2_null.shape == (3,)  # Matches the number of rows in null_betti_matrix
 
 
-def test_validate_p_vector_inputs_exceptions():
+def test_validate_p_value_inputs_exceptions():
     """Tests all ValueError branches in the input validation."""
     
     # 1. obs_betti is not 1D
