@@ -372,10 +372,6 @@ def betti_numbers(
             # compute the betti numbers    
             betti = [nullities[k] - ranks[k] for k in range(len(ranks))]
         else:
-            if not cliques:
-                betti = []
-            else:
-                betti = [len(cliques)]
             betti = [len(cliques)]
         # pad with zeros to ensure consistency in size across permutations
         padded_betti = betti + [0] * (max_len - len(betti))
