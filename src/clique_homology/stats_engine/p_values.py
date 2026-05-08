@@ -2,23 +2,32 @@ import numpy as np
 from scipy.linalg import cho_factor, cho_solve, pinvh
 
 
-def get_mahalanobis(vector, mean, inv_cov):
-    """Returns the mahalanobis distance of a vector given a mean and an inverse
-        covariance matrix.
+def _validate_p_vector_inputs(
+    obs_betti: np.ndarray, 
+    null_betti_matrix: np.ndarray
+) -> tuple[np.ndarray, np.ndarray]:
+    """Perform validation on the observed betti vector and the null dist.
 
     Args:
-        vector (ndarray): A 1-dimensional numpy array
-        mean (_type_): _description_
-        inv_cov (_type_): _description_
+        obs_betti (ndarray): 1D numpy array (The C. elegans vector of betti
+            numbers)
+        null_betti_matrix (ndarray): 2D numpy array (n permutations x m
+            dimensions)
+
+    Raises:
+        ValueError: raised if observed betti vector is something other than a 1D
+            numpy array.
+        ValueError: raised if the null distribution is something other than a
+            2D numpy array.
+        ValueError: Raised if the null distribution has zero rows.
+        ValueError: Raised if the shape of the observed betti vector is
+            different than the number of columns of the null distribution.
 
     Returns:
-        _type_: _description_
+        tuple[np.ndarray, np.ndarray]: validated observed betti vector (1D numpy
+            array), validated null distribution (2D numpy array)
     """
-    diff = vector - mean
-    return float(diff @ inv_cov @ diff.T)
 
-
-def _validate_p_vector_inputs(obs_betti, null_betti_matrix) -> tuple[np.ndarray, np.ndarray]:
     clean_obs = np.asarray(obs_betti, dtype=float)
     clean_null = np.asarray(null_betti_matrix, dtype=float)
 
@@ -36,11 +45,10 @@ def _validate_p_vector_inputs(obs_betti, null_betti_matrix) -> tuple[np.ndarray,
     return clean_obs, clean_null
 
 
-    """
-    obs_betti: 1D array (The C. elegans vector)
-    null_betti_matrix: 
-    """
-def calculate_p_value(obs_betti, null_betti_matrix):
+def calculate_p_value(
+    obs_betti: np.ndarray, 
+    null_betti_matrix: np.ndarray
+) -> tuple[float, float, np.ndarray]:
     """Calculate the likelihood that the observed betti vector could have been
         produced by random chance, given a provided null distribution of random
         betti vector permutations.
@@ -52,9 +60,9 @@ def calculate_p_value(obs_betti, null_betti_matrix):
             dimensions)
 
     Returns:
-        tuple: p-value (int), distance of observed betti vector from mean
-            (float), and distances of null distribution vectors from mean
-            (vector)
+        tuple[float, float, np.ndarray]: p-value (float), distance of observed
+            betti vector from mean (float), and distances of null distribution
+            vectors from mean (np.ndarray)
     """
     
     clean_obs, clean_null = _validate_p_vector_inputs(obs_betti, 
