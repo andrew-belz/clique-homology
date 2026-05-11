@@ -1,5 +1,5 @@
 from clique_homology import random_coloring, betti_numbers
-from networkit.graph import Graph # type: ignore
+from networkit.graph import Graph
 import numpy as np
 
 def null_distribution(
