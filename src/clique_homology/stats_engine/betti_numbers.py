@@ -2,9 +2,8 @@ import networkit as nk
 import numpy as np
 import itertools
 
-# ----------------------------------------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 
-# ----------------------------------------------------------------------------------------------------------------
 def get_max_clique_size(G:nk.Graph):
     """Return the size of the largest clique of a graph G.
 
@@ -25,6 +24,7 @@ def get_max_clique_size(G:nk.Graph):
     
     return len(cliques[0])
 
+# ------------------------------------------------------------------------------
 
 def get_cliques(G:nk.Graph):
     """Return a generator for cliques of a graph G.
@@ -60,7 +60,7 @@ def get_cliques(G:nk.Graph):
     for clique in all_cliques:
         yield clique
 
-# ----------------------------------------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 
 def get_colored_subgraphs(G:nk.Graph, node_colors:list[str]):
     """Return a generator for colored subgraphs of a graph G. 
@@ -88,7 +88,7 @@ def get_colored_subgraphs(G:nk.Graph, node_colors:list[str]):
     for color in node_subsets.keys():
         yield nk.graphtools.subgraphFromNodes(G, node_subsets[color])
 
-# ----------------------------------------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 
 def boundary_maps(cliques:list) -> list:
     """Construct the boundary maps D_k given a complete list of cliques
@@ -178,7 +178,7 @@ def boundary_maps(cliques:list) -> list:
     return [build_map(positions[k-1], positions[k])
                         for k in range(1, len(positions))]
 
-# ----------------------------------------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 
 def ranks_and_nullities(M:np.array) -> tuple:
     """Return the rank and nullity of a matrix over Z_2 (contains only values of
@@ -210,11 +210,13 @@ def ranks_and_nullities(M:np.array) -> tuple:
                 break
 
             # Find a pivot row for column j, looking only at rows >= rank
-            # np.where returns a tuple, so we take [0] to get the array of indices
+            #   np.where returns a tuple, so we take [0] to get the array of
+            #   indices
             pivot_candidates = np.where(M2[rank:, j] == 1)[0]
 
             if len(pivot_candidates) > 0:
-                # Get the first available pivot (index is relative to the slice, so add rank)
+                # Get the first available pivot (index is relative to the slice,
+                #   so add rank)
                 pivot_row = pivot_candidates[0] + rank
 
                 # Swap the current row (rank) with the pivot row
@@ -223,7 +225,8 @@ def ranks_and_nullities(M:np.array) -> tuple:
 
                 # Eliminate 1s in this column for all rows BELOW the pivot
                 # We use (^) for addition modulo 2
-                rows_to_eliminate = np.where(M2[rank+1:, j] == 1)[0] + (rank + 1)
+                rows_to_eliminate = np.where(M2[rank+1:, j] == 1)[0] + (rank
+                                                                         + 1)
                 if len(rows_to_eliminate) > 0:
                     M2[rows_to_eliminate] ^= M2[rank]
 
@@ -237,9 +240,9 @@ def ranks_and_nullities(M:np.array) -> tuple:
     nullity = M.shape[1] - rank
     return rank, nullity
 
-# ----------------------------------------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 
-def _validate_colors(
+def _validate_colors(   
     G: nk.Graph,
     colors: list[str],
 ) -> None:
@@ -263,7 +266,7 @@ def _validate_colors(
     if not all(isinstance(color, str) for color in colors):
         raise TypeError("All node colors must be strings.")
 
-   
+# ------------------------------------------------------------------------------
 
 def betti_numbers(
     G: nk.Graph,

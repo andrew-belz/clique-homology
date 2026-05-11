@@ -24,7 +24,7 @@ if __name__ == "__main__":
     edge_list = edges.index.to_list()
 
     """
-    Compile list of unique edges
+    Compile list of unique edges.
     """
 
     # ensure no duplicate edges
@@ -68,7 +68,7 @@ if __name__ == "__main__":
                 print(f"{e} not found.")
                 
     """
-    Store data
+    Store data.
     """
 
     # store integer edges in a csv

@@ -1,10 +1,15 @@
 import csv
 
-def c_elegans_edges():
-    """
-    Return chemical synaptical connections of male C. elegans.
+def c_elegans_edges() -> list[tuple[int, int]]:
+    """Return chemical synaptical connections of male C. elegans.
+
+    Returns:
+        list[tuple[int, int]]: A list of two-item tuples representing edges of a
+            graph.
     """
 
+    # Open file containing the connectome edges, convert it to a list of tuples,
+    #   and return the list.
     with open(r"c_elegans_data\c_elegans_edges.csv", "r") as file:
         
         reader = csv.reader(file)
