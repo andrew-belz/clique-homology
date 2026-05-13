@@ -72,6 +72,8 @@ def calculate_p_value(
     mu_null = np.mean(clean_null, axis=0)
     cov_null = np.atleast_2d(np.cov(clean_null, rowvar=False))
 
+    print(cov_null)
+
     # null_betti_matrix could be rank-deficient or sparse, either of which would
     #   render the covariance matrix singular and cause serious numerical
     #   stability problems. In order to avoid that, we regularize by a factor of
