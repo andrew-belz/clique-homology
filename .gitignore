@@ -54,3 +54,5 @@ coverage.xml
 cover/
 results.json
 
+# private docs
+notes.ipynb
