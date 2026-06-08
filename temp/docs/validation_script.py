@@ -4,7 +4,7 @@ import numpy as np # matrix calculations and data generation
 from sklearn.model_selection import ParameterSampler # sampling a parameter grid for simulation
 # import time # for time benchmarking in simulation
 import pandas as pd # analzying and visualizing the results
-from clique_homology.stats_engine.stats_engine import stats_engine
+from clique_homology.stats_engine.stats_engine import StatsEngine
 
 np.random.seed(122)
 
@@ -83,8 +83,8 @@ def simulate(x_sim, x_diff, n, c, sigma_eps, generation_method="static"):
         G = generate_SBM_static(P)
     else: raise ValueError(f"{generation_method} is invalid generation method.")
 
-    # something
-    pval, _, _ = stats_engine(nk.nxadapter.nx2nk(G), [str(c) for c in colors], iters=null_dist_iters)
+    engine = StatsEngine(G=nk.nxadapter.nx2nk(G), labels=[str(c) for c in colors])
+    pval, _, _ = engine.pval(iters=null_dist_iters)
     return pval
 
 if __name__ == "__main__":

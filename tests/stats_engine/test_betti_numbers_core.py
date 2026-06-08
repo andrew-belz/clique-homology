@@ -84,7 +84,7 @@ def test_ranks_and_nullities_known_cases(
     expected_rank: int,
     expected_nullity: int,
 ) -> None:
-    rank, nullity = ranks_and_nullities(matrix)
+    rank, nullity, _ = ranks_and_nullities(matrix)
     assert rank == expected_rank
     assert nullity == expected_nullity
     assert rank + nullity == matrix.shape[1]

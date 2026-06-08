@@ -29,9 +29,9 @@ class StatsEngine:
 
     def pval(self, iters:int=2000):
             
-        if not self.p:
-            obs = self.observed_betti() if not self.obs_betti else self.obs_betti
-            null_dist = self.null_dist(iters=iters) if not self.null_betti else self.null_betti
+        if self.p is None:
+            obs = self.observed_betti() if self.obs_betti is None else self.obs_betti
+            null_dist = self.null_dist(iters=iters) if self.null_betti is None else self.null_betti
 
             p, obsD2 , nullD2 = calculate_p_value(obs, null_dist)
 
@@ -43,5 +43,3 @@ class StatsEngine:
         
         else:
             return self.p, self.obsD2, self.nullD2
-
-

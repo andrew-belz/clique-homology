@@ -232,13 +232,13 @@ def ranks_and_nullities(M:np.array) -> tuple:
 
                 rank += 1
         
-        return rank
+        return rank, M2
 
     # utilize the rank-nullity theorem here.
     # returns (rank, nullity)
-    rank = rank_Z2(M)
+    rank, M2 = rank_Z2(M)
     nullity = M.shape[1] - rank
-    return rank, nullity
+    return rank, nullity, M2
 
 # ------------------------------------------------------------------------------
 
@@ -271,7 +271,7 @@ def _validate_colors(
 def betti_numbers(
     G: nk.Graph,
     colors: list[str],
-    method: str = "clique",
+    method: str = "clique"
 ) -> np.ndarray:
     """Compute the Betti numbers of a colored graph. 
 
@@ -323,7 +323,7 @@ def betti_numbers(
             ranks, nullities = [], []
             for boundary_map in maps:
                 # get the ranks and nullities for each map
-                rank, nullity = ranks_and_nullities(boundary_map)
+                rank, nullity, reduced_map = ranks_and_nullities(boundary_map)
                 ranks.append(rank)
                 nullities.append(nullity)
 
@@ -359,7 +359,7 @@ def betti_numbers(
 
         for boundary_map in maps:
             # get the ranks and nullities for each map
-            rank, nullity = ranks_and_nullities(boundary_map)
+            rank, nullity, _ = ranks_and_nullities(boundary_map)
             ranks.append(rank)
             nullities.append(nullity)
 
